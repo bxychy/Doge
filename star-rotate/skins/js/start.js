@@ -55,7 +55,7 @@ window.onload=function(){
 			drawStar(context,arr_r[j],arr_r[j]*2,arr_x[j],arr_y[j],_scorll);
 			context.restore();
 		}			
-	},50);
+	},80);
 }
 
 //五角星计算函数
