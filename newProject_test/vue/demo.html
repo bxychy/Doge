@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<script type="text/javascript" src="skins/js/vue.js" ></script>
+	</head>
+	<body>
+		<div id="demo">
+			<p>{{ message }}</p>
+			<p>{{* message}}</p>
+			<!-- 字符串反转 -->
+	  		<p>{{ message.split('').reverse().join('') }}</p>
+			<input v-model="message">
+			<ul>
+				<li v-for="doc in docs">
+					{{doc.txt | uppercase}}-{{$index}}
+				</li>
+			</ul>
+			<!--<div v-if="Math.random()>0.5">上天</div>
+			<div v-else>入地</div>-->
+			<h1>ttt</h1>
+			<template v-if="ok" v-for="parc in Paragraph">
+				<p>{{parc.par}}</p>
+			</template>
+			<h1 v-show="ok">Hello!</h1>
+		</div>
+		<script type="text/javascript" src="skins/js/vue_demo.js" ></script>
+	</body>
+</html>
