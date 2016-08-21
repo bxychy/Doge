@@ -11,9 +11,9 @@
 		</style>
 	</head>
 	<body>
-		<div class="ball ball1"></div>
-		<div class="ball ball2"></div>
-		<div class="ball ball3"></div>
+		<div class="ball ball1" style="margin-left: 0;"></div>
+		<div class="ball ball2" style="margin-left: 0;"></div>
+		<div class="ball ball3" style="margin-left: 0;"></div>
 	</body>
 	<script>
 		var ball1=document.querySelector('.ball1');
@@ -36,20 +36,19 @@
 				}
 			},13);
 		}
-		console.log('39',ball1,ball2,ball3);
-		anmite(ball1,100,function(){
-			console.log('41',ball1,ball2,ball3);
-			anmite(ball2,200,function(){
-				anmite(ball3,300,function(){
-					anmite(ball3,50,function(){
-						anmite(ball2,150,function(){
-							anmite(ball1,150,function(){
-					console.log('46');
-							});
-						});
-					});
-				});
-			});
-		});
+//		anmite(ball1,100,function(){
+//			anmite(ball2,200,function(){
+//				anmite(ball3,300,function(){
+//					anmite(ball3,150,function(){
+//						anmite(ball2,150,function(){
+//							anmite(ball1,150,function(){
+//								
+//							});
+//						});
+//					});
+//				});
+//			});
+//		});
+		
 	</script>
 </html>
