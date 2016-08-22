@@ -36,19 +36,18 @@
 				}
 			},13);
 		}
-//		anmite(ball1,100,function(){
-//			anmite(ball2,200,function(){
-//				anmite(ball3,300,function(){
-//					anmite(ball3,150,function(){
-//						anmite(ball2,150,function(){
-//							anmite(ball1,150,function(){
-//								
-//							});
-//						});
-//					});
-//				});
-//			});
-//		});
-		
+		anmite(ball1,100,function(){
+			anmite(ball2,200,function(){
+				anmite(ball3,300,function(){
+					anmite(ball3,50,function(){
+						anmite(ball2,150,function(){
+							anmite(ball1,150,function(){
+								
+							});
+						});
+					});
+				});
+			});
+		});
 	</script>
 </html>
