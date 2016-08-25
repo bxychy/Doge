@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<link rel="stylesheet" href="skins/css/vue_index.css" />
+		<script type="text/javascript" src="skins/js/vue.js" ></script>
+	</head>
+	<body>
+		<div id="index1" v-bind:class="{fadeIn:index}">
+			<img class="logo" src="skins/img/logo.png" />
+			<h1>MDZZ:{{MDZZ}}</h1>
+			<input v-model="Item" v-on:keyup.enter="addNew()" placeholder="请输入姓名"/>
+			<div id="btn1" v-bind:class="{fadeIn:OK}"><a v-on:click="sendClick()" href="##">开启你的奇幻之旅</a></div>
+		</div>
+	</body>
+	<script type="text/javascript" src="skins/js/vue_index.js" ></script>
+</html>
