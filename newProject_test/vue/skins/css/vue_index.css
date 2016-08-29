@@ -3,10 +3,16 @@ body{display: flex;align-items: center;justify-content: center;height: 100%;}
 h1{color: #42b983;}
 a{text-decoration: none;}
 
-#index1{opacity:1;}
-#index1.fadeIn{transition: opacity 1s ease;opacity:0;}
+#cton1{opacity:1;}
+#cton1.fadeIn{transition: opacity 1s ease;opacity:0;}
+#cton2{opacity:0;}
+#cton2.fadeIn{transition: opacity 1s ease;opacity:1;}
 #btn1{opacity:0;}
 #btn1.fadeIn{transition: opacity 1s ease;display: block;opacity:1;}
+
 #btn1.fadeIn a{font-size:18px;color:#42b983;margin:10px 0px;display: block;}
 .logo {width: 100px;height: 100px;}
-#index1 {color: #2c3e50;max-width: 600px;text-align: center;}
+#index {color: #2c3e50;max-width: 600px;text-align: center;}
+
+/*ctn2*/
+

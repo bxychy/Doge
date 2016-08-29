@@ -11,8 +11,8 @@ var saveData={
 	}
 };
 
-var index=new Vue({
-	el:'#index1',
+var index1=new Vue({
+	el:'#index',
 	mixins: [saveData],
 	data:{
 		OK:false,
@@ -38,6 +38,7 @@ var index=new Vue({
 	  	},
 	  	sendClick:function(){
 	  		this.index=true;
+	  		index1.index=true;
 	  	}
 	}
 });
