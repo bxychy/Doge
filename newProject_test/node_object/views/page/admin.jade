@@ -1,0 +1,26 @@
+extends ../layout
+
+block content
+	.cotainer
+		.row
+			form.form-horizontal(method='post',action='/admin/movie/new')
+				.form-group
+					label.col-sm-2.control-label(for='inputTitle) 电影名字
+					.col-sm-10
+						input#inputTitle.form-control(type='text',name='move[title]',value='#{movie.title}')
+				.form-group
+					label.col-sm-2.control-label(for='inputDoctor) 电影导演
+					.col-sm-10
+						input#inputTitle.form-control(type='text',name='move[doctor]',value='#{movie.doctor}')
+				.form-group
+					label.col-sm-2.control-label(for='inputCountry) 国家
+					.col-sm-10
+						input#inputTitle.form-control(type='text',name='move[country]',value='#{movie.country}')
+				.form-group
+					label.col-sm-2.control-label(for='inputLanguage) 语种
+					.col-sm-10
+						input#inputTitle.form-control(type='text',name='move[language]',value='#{movie.language}')
+				.form-group
+					label.col-sm-2.control-label(for='inputPoster') 海报地址
+					.col-sm-10
+						input#inputTitle.form-control(type='text',name='move[poster]',value='#{movie.poster}')
