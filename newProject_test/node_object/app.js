@@ -1,34 +1,38 @@
-var express=require('express');
-var path=require('path');
+/**
+ * Created by Administrator on 2016/9/12.
+ */
+var express = require("express");
+var path = require('path');
 var mongoose = require('mongoose');
-var Movie = require('./models/movie');
 var _ = require('underscore');
-var bodyParser = require('body-parser');
-var port=process.env.PORT || 3333;
-var app=express();
-mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost/test');
+var Movie = require('./models/movie');
+var port = process.env.PORT || 3333;
+var app = express();
 
+mongoose.Promise = global.Promise;
+mongoose.connect("mongodb://localhost:27017/movies");
 
 app.use(require('body-parser').urlencoded({extended: true}));
 app.use(express.static(path.join(__dirname, 'bower_components')));//静态文件配置的目录
 app.set('views','./views/page');
 app.set('view engine','pug');
+app.locals.moment = require('moment')
 app.listen(port);
 
-console.log('imooc start on port'+port);
+console.log('imooc start:'+ port);
 
-// index page
-app.get('/',function(x,y){
-	Movie.fetch(function(err,movies){
-		if(err){
-			console.log(err);
-		}
-		y.render('index',{
-			title:'biu~ 首页',
-			movies: movies
-		});
-	});
+//index page
+app.get('/',function(req,res){
+    Movie.fetch(function (err, movies) {
+        if(err){
+            console.log(err);
+        }
+
+        res.render('index',{
+            title:'imooc 首页',
+            movies: movies
+        });
+    });
 //	y.render('index',{
 //		title:'biu~ 首页',
 //		movies:[{
@@ -62,20 +66,15 @@ app.get('/',function(x,y){
 //			poster: 'http://r3.ykimg.com/05160000530EEB63675839160D0B79D5'
 //		}]
 //	});
-});
+} );
 
-// datile page
-app.get('/movie/:id',function(x,y){
-	var id = x.params.id;
-	Movie.findById(id,function(err,movie){
-		if(err){
+//detail page
+app.get('/movie/:id', function(req, res) {
+    var id = req.params.id;
+    Movie.findById(id,function (err, movie) {
+        if(err){
             console.log(err);
         }
-		y.render('datile',{
-			title:'biu~ 详情页',
-			movie:movie
-		});
-	});
 //	y.render('datile',{
 //		title:'biu~ 详情页',
 //		movie:{
@@ -89,46 +88,69 @@ app.get('/movie/:id',function(x,y){
 //			summary:'mdzzyaoshangtian'
 //		}
 //	});
-});
 
-// admin page
-app.get('/admin/movie',function(x,y){
-	y.render('admin',{
-		title:'biu~ 后台',
-		movie:{
-			title:'',
-			doctor:'',
-			country:'',
-			year:'',
-			poster:'',
-			falsh:'',
-			summary:'',
-			language:''
-		}
-	});
-});
+        res.render('detail', {
+            title: 'imooc ' + movie.title,
+            movie: movie
+        })
+    })
+})
+
+//admin page
+app.get('/admin/movie', function(req, res) {
+    res.render('admin', {
+        title: 'imooc 后台录入页',
+        movie: {
+            title: '',
+            doctor: '',
+            country: '',
+            year: '',
+            poster: '',
+            flash: '',
+            summary: '',
+            language: ''
+        }
+    })
+})
+
+//admin update movie
+app.get('/admin/update/:id',function (req, res) {
+    var id= req.params.id;
+
+    if (id) {
+        Movie.findById(id, function (err,movie) {
+            res.render('admin',{
+                title:'imooc 后台更新页',
+                movie:movie
+            })
+
+        })
+    }
+})
 
 //admin post movie
-app.post('/admin/movie/new',function(x,y){
-	var id = x.body.movie._id;
-    var movieObj = x.body.movie;
+app.post('/admin/movie/new',function (req, res) {
+    var id = req.body.movie._id;
+    var movieObj = req.body.movie;
     var _movie ;
-	if(id!=='undefined'){
-		Movie.findById(id,function(err,movie){
-			if (err) {
+    if(id!==undefined && id !== "" && id !== null){
+        Movie.findById(id,function (err,movie) {
+            if (err) {
                 console.log(err);
             }
-			_movie=_.extend(movie,movieObj);
-			_movie=save(function(err,movie){
-				if (err) {
-                	console.log(err);
-            	}
-				y.redirect('/movie/' + movie._id);
-			});
-		});
-	}else{
-		_movie=new Movie({
-			doctor:movieObj.doctor,
+
+            _movie = _.extend(movie, movieObj);
+            _movie.save(function (err,movie) {
+                if (err){
+                    console.log(err);
+                }
+
+                res.redirect('/movie/' + movie._id)
+            })
+        })
+    }else{
+        _movie = new Movie({
+            doctor:movieObj.doctor,
             title:movieObj.title,
             country:movieObj.country,
             language:movieObj.language,
@@ -136,37 +158,27 @@ app.post('/admin/movie/new',function(x,y){
             poster:movieObj.poster,
             summary:movieObj.summary,
             flash:movieObj.flash
-		});
-		_movie=save(function(err,movie){
-			if(err){
+        });
+
+        _movie.save(function (err,movie) {
+            if (err){
                 console.log(err);
             }
-			y.redirect('/movie/' + movie._id);
-		});
-	}
-});
 
-//admin update movie
-app.get('/admin/update/:id',function (x, y) {
-	var id= x.params.id;
-    if (id) {
-        Movie.findById(id, function (err,movie) {
-            y.render('admin',{
-                title:'biubiubiu~ 后台更新页',
-                movie:movie
-            })
-
+            res.redirect('/movie/' + movie._id)
         })
     }
 });
 
-// list page
-app.get('/admin/list',function(x,y){
-	Movie.fetch(function (err, movies) {
+
+//list page
+app.get('/admin/list', function(req, res) {
+    Movie.fetch(function (err, movies) {
         if(err){
             console.log(err);
         }
-        y.render('list',{
+
+        res.render('list',{
             title:'imooc 列表页',
             movies: movies
         });
@@ -186,4 +198,3 @@ app.get('/admin/list',function(x,y){
 //		}]
 //	});
 });
-
