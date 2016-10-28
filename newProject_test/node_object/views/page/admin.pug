@@ -4,10 +4,11 @@ block content
 	.cotainer
 		.row
 			form.form-horizontal(method='post',action='/admin/movie/new')
+				input(type="hidden", name="movie[_id]", value=movie._id)
 				.form-group
 					label.col-sm-2.control-label(for='inputTitle') 电影名字
 					.col-sm-10
-						input#inputTitle.form-control(type='text',name='move[title]',value=movie._id)
+						input#inputTitle.form-control(type='text',name='move[title]',value=movie.id)
 				.form-group
 					label.col-sm-2.control-label(for='inputDoctor') 电影导演
 					.col-sm-10
@@ -33,7 +34,7 @@ block content
 					.col-sm-10
 						input#inputYear.form-control(type='text',name='move[year]',value=movie.year)
 				.form-group
-					label.col-sm-2.control-label(for='inputSummary') 上映年代
+					label.col-sm-2.control-label(for='inputSummary') 电影简介
 					.col-sm-10
 						input#inputSummary.form-control(type='text',name='move[summary]',value=movie.summary)
 				.form-group
