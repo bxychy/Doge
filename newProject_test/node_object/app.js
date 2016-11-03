@@ -13,7 +13,7 @@ mongoose.Promise = global.Promise;
 mongoose.connect("mongodb://localhost:27017/movies");
 
 app.use(require('body-parser').urlencoded({extended: true}));
-app.use(express.static(path.join(__dirname, 'bower_components')));//静态文件配置的目录
+app.use(express.static(path.join(__dirname, 'public')));//静态文件配置的目录
 app.set('views','./views/page');
 app.set('view engine','pug');
 app.locals.moment = require('moment')
@@ -22,13 +22,13 @@ app.listen(port);
 console.log('imooc start:'+ port);
 
 //index page
-app.get('/',function(req,res){
+app.get('/',function(x,y){
     Movie.fetch(function (err, movies) {
         if(err){
             console.log(err);
         }
 
-        res.render('index',{
+        y.render('index',{
             title:'imooc 首页',
             movies: movies
         });
@@ -69,8 +69,8 @@ app.get('/',function(req,res){
 } );
 
 //detail page
-app.get('/movie/:id', function(req, res) {
-    var id = req.params.id;
+app.get('/movie/:id', function(x, y) {
+    var id = x.params.id;
     Movie.findById(id,function (err, movie) {
         if(err){
             console.log(err);
@@ -89,7 +89,7 @@ app.get('/movie/:id', function(req, res) {
 //		}
 //	});
 
-        res.render('detail', {
+        y.render('detail', {
             title: 'imooc ' + movie.title,
             movie: movie
         })
@@ -97,8 +97,8 @@ app.get('/movie/:id', function(req, res) {
 })
 
 //admin page
-app.get('/admin/movie', function(req, res) {
-    res.render('admin', {
+app.get('/admin/movie', function(x, y) {
+    y.render('admin', {
         title: 'imooc 后台录入页',
         movie: {
             title: '',
@@ -114,12 +114,12 @@ app.get('/admin/movie', function(req, res) {
 })
 
 //admin update movie
-app.get('/admin/update/:id',function (req, res) {
-    var id= req.params.id;
+app.get('/admin/update/:id',function (x, y) {
+    var id= x.params.id;
 
     if (id) {
         Movie.findById(id, function (err,movie) {
-            res.render('admin',{
+            y.render('admin',{
                 title:'imooc 后台更新页',
                 movie:movie
             })
@@ -129,9 +129,9 @@ app.get('/admin/update/:id',function (req, res) {
 })
 
 //admin post movie
-app.post('/admin/movie/new',function (req, res) {
-    var id = req.body.movie._id;
-    var movieObj = req.body.movie;
+app.post('/admin/movie/new',function (x, y) {
+    var id = x.body.movie._id;
+    var movieObj = x.body.movie;
     var _movie ;
     if(id!==undefined && id !== "" && id !== null){
         Movie.findById(id,function (err,movie) {
@@ -145,7 +145,7 @@ app.post('/admin/movie/new',function (req, res) {
                     console.log(err);
                 }
 
-                res.redirect('/movie/' + movie._id)
+                y.redirect('/movie/' + movie._id)
             })
         })
     }else{
@@ -165,20 +165,19 @@ app.post('/admin/movie/new',function (req, res) {
                 console.log(err);
             }
 
-            res.redirect('/movie/' + movie._id)
+            y.redirect('/movie/' + movie._id)
         })
     }
 });
 
 
 //list page
-app.get('/admin/list', function(req, res) {
+app.get('/admin/list', function(x, y) {
     Movie.fetch(function (err, movies) {
         if(err){
             console.log(err);
         }
-
-        res.render('list',{
+        y.render('list',{
             title:'imooc 列表页',
             movies: movies
         });
@@ -197,4 +196,18 @@ app.get('/admin/list', function(req, res) {
 //			summary:'翻拍自biliangbiliangbiliang的biubiubiu',
 //		}]
 //	});
+});
+
+//list delete movie
+app.delete('/admin/list',function(x,y){
+	var id=x.query.id;
+	if(id){
+		Movie.remove({_id:id},function(err,movie){
+			if(err){
+	            console.log(err);
+	        }else{
+	        	y.json({success:1});
+	        }
+		});
+	}
 });
