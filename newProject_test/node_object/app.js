@@ -6,6 +6,7 @@ var path = require('path');
 var mongoose = require('mongoose');
 var _ = require('underscore');
 var Movie = require('./models/movie');
+var User = require('./models/user');
 var port = process.env.PORT || 3333;
 var app = express();
 
@@ -66,7 +67,43 @@ app.get('/',function(x,y){
 //			poster: 'http://r3.ykimg.com/05160000530EEB63675839160D0B79D5'
 //		}]
 //	});
-} );
+});
+
+//signup
+app.post('/user/signup',function(x,y){
+	var _user=x.body.user;
+	console.log('user',_user);
+	User.findOne({name:_user.name},function(err,user){
+		if(err){
+			console.log('err',err);
+		}
+		if(user){
+			console.log('81',user);
+			return y.redirect('/');
+		}else{
+			user=new User(_user);
+			user.save(function(err,user){
+				if(err){
+					console.log('err',err);
+				}
+				y.redirect('/');
+			});
+		}
+	});
+});
+
+//userlist page
+app.get('/admin/userlist', function(x, y) {
+    User.fetch(function (err, users) {
+        if(err){
+            console.log(err);
+        }
+        y.render('userlist',{
+            title:'biu~ 用户列表页',
+            users: users
+        });
+    });
+});
 
 //detail page
 app.get('/movie/:id', function(x, y) {
@@ -169,7 +206,6 @@ app.post('/admin/movie/new',function (x, y) {
         })
     }
 });
-
 
 //list page
 app.get('/admin/list', function(x, y) {
