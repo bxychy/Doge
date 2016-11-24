@@ -1,26 +1,55 @@
 /**
  * Created by Administrator on 2016/9/12.
  */
+
+var cookieParser = require('cookie-parser');
+var session = require('cookie-session');
 var express = require("express");
 var path = require('path');
+
+var session = require('express-session');
+var cookieParser = require('cookie-parser');
+
 var mongoose = require('mongoose');
+var MongoStore = require('connect-mongo')(session);
 var _ = require('underscore');
 var Movie = require('./models/movie');
 var User = require('./models/user');
 var port = process.env.PORT || 3333;
 var app = express();
 
+var dbUrl="mongodb://localhost:27017/movies";
+
 mongoose.Promise = global.Promise;
-mongoose.connect("mongodb://localhost:27017/movies");
+mongoose.connect(dbUrl);
 
 app.use(require('body-parser').urlencoded({extended: true}));
 app.use(express.static(path.join(__dirname, 'public')));//静态文件配置的目录
+app.use(cookieParser());
+app.use(session({
+	secret: 'biubiubiu~',
+	store: new MongoStore({
+	    url: dbUrl,
+	    collection: 'sessions',
+	}),
+	resave:false,
+	saveUninitialized:true
+
+}))
+
 app.set('views','./views/page');
 app.set('view engine','pug');
 app.locals.moment = require('moment')
 app.listen(port);
 
 console.log('imooc start:'+ port);
+
+//pre handle user
+app.use(function(x,y,next){
+	var _user=x.session.user;
+	app.locals.user=_user;
+	next();
+});
 
 //index page
 app.get('/',function(x,y){
@@ -90,6 +119,40 @@ app.post('/user/signup',function(x,y){
 			});
 		}
 	});
+});
+
+//signin
+app.post('/user/signin',function(x,y){
+	var _user=x.body.user;
+	var _name=_user.name;
+	var _password=_user.password;
+	
+	User.findOne({name:_name},function(err,user){
+		if(err){
+			console.log('err',err);
+		}
+		if(!user){
+			return y.redirect('/');
+		}
+		user.comparePassword(_password,function(err,paw){
+			if(err){
+				console.log('err',err);
+			}
+			if(paw){
+				x.session.user = user;
+        		return y.redirect('/');
+			}else {
+		        return y.redirect('/signin');
+		    }
+		});
+	});
+});
+
+//logout
+app.get('/logout',function(x,y){
+	delete x.session.user;
+    delete app.locals.user;
+	y.redirect('/');
 });
 
 //userlist page
