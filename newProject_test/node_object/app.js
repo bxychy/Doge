@@ -98,7 +98,7 @@ app.get('/',function(x,y){
 //	});
 });
 
-//signup
+//user-signup
 app.post('/user/signup',function(x,y){
 	var _user=x.body.user;
 	console.log('user',_user);
@@ -107,8 +107,7 @@ app.post('/user/signup',function(x,y){
 			console.log('err',err);
 		}
 		if(user){
-			console.log('81',user);
-			return y.redirect('/');
+			return y.redirect('/signin');
 		}else{
 			user=new User(_user);
 			user.save(function(err,user){
@@ -121,7 +120,7 @@ app.post('/user/signup',function(x,y){
 	});
 });
 
-//signin
+//user-signin
 app.post('/user/signin',function(x,y){
 	var _user=x.body.user;
 	var _name=_user.name;
@@ -132,7 +131,7 @@ app.post('/user/signin',function(x,y){
 			console.log('err',err);
 		}
 		if(!user){
-			return y.redirect('/');
+			return y.redirect('/signup');
 		}
 		user.comparePassword(_password,function(err,paw){
 			if(err){
@@ -148,10 +147,24 @@ app.post('/user/signin',function(x,y){
 	});
 });
 
+//signin
+app.get('/signin',function(x,y){
+	y.render('signin',{
+        title:'biu~ 登录页面'
+    });
+});
+
+//signup
+app.get('/signup',function(x,y){
+	y.render('signup',{
+        title:'biu~ 注册页面'
+    });
+});
+
 //logout
 app.get('/logout',function(x,y){
 	delete x.session.user;
-    delete app.locals.user;
+//  delete app.locals.user;
 	y.redirect('/');
 });
 
