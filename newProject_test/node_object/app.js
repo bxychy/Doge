@@ -15,6 +15,7 @@ var MongoStore = require('connect-mongo')(session);
 var _ = require('underscore');
 var Movie = require('./models/movie');
 var User = require('./models/user');
+var Comment = require('./models/comment');
 var port = process.env.PORT || 3333;
 var app = express();
 
@@ -31,7 +32,7 @@ app.use(session({
 	store: new MongoStore({
 	    url: dbUrl,
 	    collection: 'sessions',
-	}),
+	}), 
 	resave:false,
 	saveUninitialized:true
 
@@ -98,7 +99,7 @@ app.get('/',function(x,y){
 //	});
 });
 
-//user-signup
+//user-signup.注册
 app.post('/user/signup',function(x,y){
 	var _user=x.body.user;
 	console.log('user',_user);
@@ -120,7 +121,7 @@ app.post('/user/signup',function(x,y){
 	});
 });
 
-//user-signin
+//user-signin.登录
 app.post('/user/signin',function(x,y){
 	var _user=x.body.user;
 	var _name=_user.name;
@@ -140,7 +141,7 @@ app.post('/user/signin',function(x,y){
 			if(paw){
 				x.session.user = user;
         		return y.redirect('/');
-			}else {
+			}else{
 		        return y.redirect('/signin');
 		    }
 		});
@@ -170,6 +171,13 @@ app.get('/logout',function(x,y){
 
 //userlist page
 app.get('/admin/userlist', function(x, y) {
+	var user=x.session.user;
+	if(!user){
+		return y.redirect('/signin');
+	}
+	if(!user.role){
+    	return y.redirect('/');
+    }
     User.fetch(function (err, users) {
         if(err){
             console.log(err);
@@ -180,6 +188,25 @@ app.get('/admin/userlist', function(x, y) {
         });
     });
 });
+
+////signinRequired
+//app.get('/admin/signinRequired',function(x,y,next){
+//	var user = x.session.user;
+//	console.log('signinRequired-user',user);
+//	if (!user) {
+//		return y.redirect('/signin');
+//	}
+//	next();
+//});
+////adminRequired
+//app.get('/admin/adminRequired',function(x,y,next){
+//	var user = x.session.user;
+//	console.log('adminRequired-user',user);
+//	if (user.role <= 10) {
+//		return y.redirect('/signin');
+//	}
+//	next();
+//});
 
 //detail page
 app.get('/movie/:id', function(x, y) {
@@ -201,16 +228,24 @@ app.get('/movie/:id', function(x, y) {
 //			summary:'mdzzyaoshangtian'
 //		}
 //	});
-
+//		console.log(comments,"comments");
         y.render('detail', {
             title: 'imooc ' + movie.title,
             movie: movie
+//          comments:comments
         })
     })
 })
 
 //admin page
 app.get('/admin/movie', function(x, y) {
+	var user=x.session.user;
+	if(!user){
+		return y.redirect('/signin');
+	}
+	if(!user.role){
+    	return y.redirect('/');
+    }
     y.render('admin', {
         title: 'imooc 后台录入页',
         movie: {
@@ -228,8 +263,14 @@ app.get('/admin/movie', function(x, y) {
 
 //admin update movie
 app.get('/admin/update/:id',function (x, y) {
-    var id= x.params.id;
-
+	var user=x.session.user;
+	if(!user){
+		return y.redirect('/signin');
+	}
+	if(!user.role){
+    	return y.redirect('/');
+    }
+	var id= x.params.id;
     if (id) {
         Movie.findById(id, function (err,movie) {
             y.render('admin',{
@@ -243,6 +284,14 @@ app.get('/admin/update/:id',function (x, y) {
 
 //admin post movie
 app.post('/admin/movie/new',function (x, y) {
+	var user=x.session.user;
+	if(!user){
+		return y.redirect('/signin');
+	}
+	if(!user.role){
+    	return y.redirect('/');
+    }
+	
     var id = x.body.movie._id;
     var movieObj = x.body.movie;
     var _movie ;
@@ -284,7 +333,14 @@ app.post('/admin/movie/new',function (x, y) {
 });
 
 //list page
-app.get('/admin/list', function(x, y) {
+app.get('/admin/movie/list', function(x, y) {
+	var user=x.session.user;
+	if(!user){
+		return y.redirect('/signin');
+	}
+	if(!user.role){
+    	return y.redirect('/');
+    }
     Movie.fetch(function (err, movies) {
         if(err){
             console.log(err);
@@ -311,15 +367,53 @@ app.get('/admin/list', function(x, y) {
 });
 
 //list delete movie
-app.delete('/admin/list',function(x,y){
+app.delete('/admin/movie/list',function(x,y){
+	var user=x.session.user;
+	if(!user){
+		return y.redirect('/signin');
+	}
+	if(!user.role){
+    	return y.redirect('/');
+    }
 	var id=x.query.id;
 	if(id){
 		Movie.remove({_id:id},function(err,movie){
 			if(err){
 	            console.log(err);
+	            y.json({success:0});
 	        }else{
 	        	y.json({success:1});
 	        }
 		});
 	}
+});
+
+//Comment
+app.get('/admin/comment', function(x, y){
+	var _comment=x.body.comment;
+	var movieId = _comment.movie
+	if (_comment.cid) {
+    	Comment.findById(_comment.cid, function(err, comment) {
+    		var reply = {
+        		from: _comment.from,
+        		to: _comment.tid,
+        		content: _comment.content
+    		}
+    		comment.reply.push(reply)
+			comment.save(function(err, comment) {
+       			if (err) {
+        			console.log(err)
+        		}
+        		y.redirect('/movie/' + movieId)
+			})
+		})
+	}else {
+    	var comment = new Comment(_comment);
+    	comment.save(function(err, comment) {
+    		if (err) {
+    			console.log(err)
+    		}
+			y.redirect('/movie/' + movieId)
+		})
+    }
 });
